@@ -9,8 +9,9 @@
   <p id="subject"></p>
   <div><h2>wsgiServer</h2>
 <p>This module provides a multithreaded WSGI server implementation.</p>
-<h3>WSGIServer (serverAddress, applicationMap)</h3>
-<p>The serverAddress parameter is a (address, port) tuple that specifies the interface and port number that the server should listen on.&nbsp; The applicationMap parameter is a dictionary object that contains a map between URL paths and WSGI applications.</p>
+<h3>WSGIServer (serverAddress, applicationMap, serveFiles=1)</h3>
+<p>The serverAddress parameter is a (address, port) tuple that specifies the interface and port number that the server should listen on.&nbsp; The applicationMap parameter is a dictionary object that contains a map between URL paths and WSGI applications.&nbsp; All requests beneath the URL path will be passed to the relevant application (i.e. an application that registers '/appone' will receive all requests that begin with '/appone').</p>
+<p>If serveFiles is true then any GET requests that do not match an application will be served as normal HTTP file requests.</p>
 <p>The class is a sub-class of both SocketServer.ThreadingMixIn and BaseHTTPServer.HTTPServer.</p>
 <h4>Example</h4>
 <pre><code>server = wsgiServer.WSGIServer (('localhost', 1088), wsgiCallable)
@@ -21,8 +22,8 @@ server.serve_forever()
   <p id="version">PubTal Version </p>
   <div id="footer">
   <p>File: wsgi-server-api.txt</p>
-  <p>Last modified: Wed, 03 Nov 2004 21:02:25 EST</p>
+  <p>Last modified: Tue, 30 Nov 2004 23:39:28 EST</p>
   <p>Copyright 2004 Colin Stewart</p>
-  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2</p>
   </div>
 </body>
