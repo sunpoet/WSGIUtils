@@ -1,5 +1,20 @@
-WSGI Utils (Version 0.2)
+WSGI Utils (Version 0.3)
 ------------------------
+
+Version 0.3
+-----------
+The API for wsgiAdaptor has been cleaned up and extended in this release - 
+please refer to the API documentation for details.
+
+New features:
+ - Serving of files can be disabled by passing in serveFiles=0 to the 
+   wsgiServer constructor.
+ - wsgiAdaptor API cleanup.
+ 
+Bug fixes:
+ - Applications registering for a particular URL now receive all requests for 
+   that URL's children paths.
+ 
 Version 0.2
 -----------
 New features:
@@ -7,7 +22,8 @@ New features:
 
 Bug fixes:
  - Use a time stamp rather than the client IP as the second part of the session
-   ID so that it works for WSGI implementations that don't provide the client IP.
+   ID so that it works for WSGI implementations that don't provide the client 
+   IP.
  - Session last access time wasn't updated when it needed to be (sessions 
    timed out).
  - Moved session server logging configuration to daemon.
