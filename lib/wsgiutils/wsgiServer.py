@@ -32,6 +32,20 @@
 
 import SimpleHTTPServer, SocketServer, BaseHTTPServer, urlparse
 import sys, logging
+import traceback, StringIO
+
+SERVER_ERROR = """\
+<html>
+  <head>
+    <title>Server Error</title>
+  </head>
+  <body>
+    <h1>Server Error</h1>
+    A server error has occurred.  Please contact the system administrator for
+    more information.
+  </body>
+</html>
+"""
 
 class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 	def log_message (self, *args):
