@@ -1,4 +1,4 @@
-WSGI Utils (Version 0.4)
+WSGI Utils (Version 0.5)
 ------------------------
 WSGI Utils are a package of standalone utility libraries that ease the
 development of simple WSGI programs.  The functionality provided is limited
