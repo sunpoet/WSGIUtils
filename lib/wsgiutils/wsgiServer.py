@@ -107,14 +107,27 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 		self.wsgiSentHeaders = 0
 		self.wsgiHeaders = []
 
-		# We have the environment, now invoke the application
-		result = application (env, self.wsgiStartResponse)
-		for data in result:
-			if data:
-				self.wsgiWriteData (data)
+		try:
+			# We have there environment, now invoke the application
+			result = application (env, self.wsgiStartResponse)
+			try:
+				for data in result:
+					if data:
+						self.wsgiWriteData (data)
+			finally:
+				if hasattr(result, 'close'):
+					result.close()
+		except:
+			errorMsg = StringIO.StringIO()
+			traceback.print_exc(file=errorMsg)
+			logging.error (errorMsg.getvalue())
+			if not self.wsgiSentHeaders:
+				self.wsgiStartResponse('500 Server Error', [('Content-type', 'text/html')])
+			self.wsgiWriteData(SERVER_ERROR)
+		
 		if (not self.wsgiSentHeaders):
 			# We must write out something!
-			self.wsgiWriteData ("")
+			self.wsgiWriteData (" ")
 		return
 
 	def wsgiStartResponse (self, response_status, response_headers, exc_info=None):
