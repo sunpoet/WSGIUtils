@@ -34,6 +34,9 @@ import unittest, os, os.path, sys
 
 from wsgiutils import wsgiAdaptor
 
+ENV = {'wsgi.errors': sys.stderr, 'PATH_INFO': '/', 'wsgi.url_scheme': 'http'
+	  ,'HTTP_HOST': 'localhost'}
+
 class RequestTests (unittest.TestCase):
 	def testGoodPath (self):
 		dirToTest = os.tempnam()
@@ -44,7 +47,7 @@ class RequestTests (unittest.TestCase):
 		createFile.write (testdata)
 		createFile.close()
 		
-		request = wsgiAdaptor.Request (sys.stderr, "/")
+		request = wsgiAdaptor.Request (ENV)
 		# Try the good test.
 		request.sendFileForPath ("Test%20File", dirToTest)
 		self.failUnless (testdata == request.contentValue, "Reading test file failed: %s" % str (request.contentValue))
@@ -53,7 +56,7 @@ class RequestTests (unittest.TestCase):
 		os.rmdir (dirToTest)
 		
 	def testBadPath (self):
-		request = wsgiAdaptor.Request (sys.stderr, "/")
+		request = wsgiAdaptor.Request (ENV)
 		try:
 			request.sendFileForPath ("../etc/passwd", "/tmp/")
 			self.fail ("Able to read passwd file from /tmp/")
