@@ -47,6 +47,8 @@ class simpleCookie (Cookie.SimpleCookie):
 			is actuall a tuple of unquotedvalue, originalvalue
 		"""
 		unqoutedvalue, dummy = Cookie.SimpleCookie.value_decode (self, avalue)
+		if (self.digestKey is None):
+			return unqoutedvalue, dummy 
 		coder = hmac.new(self.digestKey)
 		expectedKey = unqoutedvalue [0:32]
 		realValue = unqoutedvalue [32:]
@@ -62,6 +64,8 @@ class simpleCookie (Cookie.SimpleCookie):
 		""" Return the value encoded - note that the documentation is wrong and the return value
 			is actuall a tuple of originalvalue, quotedevalue
 		"""
+		if (self.digestKey is None):
+			return Cookie.SimpleCookie.value_encode (self, avalue)
 		coder = hmac.new(self.digestKey)
 		coder.update (avalue)
 		valuetostore = coder.hexdigest() + avalue
