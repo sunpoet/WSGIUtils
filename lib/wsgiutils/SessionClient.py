@@ -47,8 +47,8 @@ class Session (dict):
 	def getSessionID (self):
 		return self.sessionID
 	
-def getNewSessionID (clientIP):
-	return str (random.randint (0, 99000000000)) + clientIP
+def getNewSessionID ():
+	return str (random.randint (0, 99000000000)) + str (time.time())
 	
 class LocalSessionClient (object):
 	def __init__ (self, dbFileLocation, cookieName, sessionLifeSpan = 3600):
@@ -58,7 +58,7 @@ class LocalSessionClient (object):
 		self.dbLock = threading.Lock()
 		self.db = anydbm.open (dbFileLocation, 'c')
 		
-	def getSession (self, cookies, clientIP):
+	def getSession (self, cookies):
 		cookieValue = None
 		if (cookies.has_key (self.cookieName)):
 			cookieValue = cookies [self.cookieName].value
@@ -67,7 +67,7 @@ class LocalSessionClient (object):
 			self.log.info ("No %s cookie found." % self.cookieName)
 			# Nothing to load, no session present.
 		if (cookieValue is None):
-			sessID = getNewSessionID (clientIP)
+			sessID = getNewSessionID ()
 			cookies [self.cookieName] = sessID
 			return Session (sessID)
 		
@@ -78,7 +78,7 @@ class LocalSessionClient (object):
 		else:
 			self.dbLock.release()
 			self.log.warn ("Session for ID %s was not found!" % str (cookieValue))
-			sessID = getNewSessionID (clientIP)
+			sessID = getNewSessionID ()
 			cookies [self.cookieName] = sessID
 			return Session(sessID)
 			
@@ -136,7 +136,7 @@ class SessionServerClient (object):
 			self.sessionServerSocket = None
 		self.socketLock.release()
 	
-	def getSession (self, cookies, clientIP):
+	def getSession (self, cookies):
 		cookieValue = None
 		if (cookies.has_key (self.cookieName)):
 			cookieValue = cookies [self.cookieName].value
@@ -145,7 +145,7 @@ class SessionServerClient (object):
 			self.log.info ("No %s cookie found." % self.cookieName)
 			# Nothing to load, no session present.
 		if (cookieValue is None):
-			sessID = getNewSessionID (clientIP)
+			sessID = getNewSessionID ()
 			cookies [self.cookieName] = sessID
 			return Session (sessID)
 		
@@ -179,7 +179,7 @@ class SessionServerClient (object):
 		self.log.info ("Response is message type: %s" % msgType)
 		if (msgType == 'NOTFOUND'):
 			self.log.warn ("Session for ID %s was not found!" % str (cookieValue))
-			sessID = getNewSessionID (clientIP)
+			sessID = getNewSessionID ()
 			cookies [self.cookieName] = sessID
 			return Session(sessID)
 		elif (msgType == 'FOUND'):

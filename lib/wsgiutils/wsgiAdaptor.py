@@ -147,7 +147,7 @@ class wsgiAdaptor (object):
 			cookies = simpleCookie (self.cookieKey, "")
 		
 		# Get our session
-		request.session = self.sessionClient.getSession (cookies, environment.get ('REMOTE_ADDR', ''))
+		request.session = self.sessionClient.getSession (cookies)
 		# And the form parameters
 		request.formFields = cgi.FieldStorage (fp=environment ['wsgi.input'], environ=environment)
 		
