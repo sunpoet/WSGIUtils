@@ -14,12 +14,11 @@
 from wsgiutils import SessionClient, wsgiAdaptor, wsgiServer
 class TestApp:
 	def requestHandler (self, request):
-		request.setContentType ('text/html')
 		session = request.getSession()
 		count = session.get ('counter', 0)
 		count += 1
 		session ['counter'] = count
-		return "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Visits: %s&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" % str (count)
+		request.sendContent("&lt;html&gt;&lt;body&gt;&lt;h1&gt;Visits: %s&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" % str (count), 'text/html')
 	
 testclient = SessionClient.LocalSessionClient('session.dbm', 'testappid')
 testadaptor = wsgiAdaptor.wsgiAdaptor (TestApp(), 'siteCookieKey', testclient)
@@ -39,8 +38,8 @@ server.serve_forever()
   <p id="version">PubTal Version </p>
   <div id="footer">
   <p>File: index.txt</p>
-  <p>Last modified: Wed, 03 Nov 2004 22:27:15 EST</p>
+  <p>Last modified: Wed, 01 Dec 2004 23:07:14 EST</p>
   <p>Copyright 2004 Colin Stewart</p>
-  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2</p>
   </div>
 </body>

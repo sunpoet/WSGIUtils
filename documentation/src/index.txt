@@ -9,12 +9,11 @@ A simple example of how these utilities can be used together:
 from wsgiutils import SessionClient, wsgiAdaptor, wsgiServer
 class TestApp:
 	def requestHandler (self, request):
-		request.setContentType ('text/html')
 		session = request.getSession()
 		count = session.get ('counter', 0)
 		count += 1
 		session ['counter'] = count
-		return "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Visits: %s&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" % str (count)
+		request.sendContent("&lt;html&gt;&lt;body&gt;&lt;h1&gt;Visits: %s&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" % str (count), 'text/html')
 	
 testclient = SessionClient.LocalSessionClient('session.dbm', 'testappid')
 testadaptor = wsgiAdaptor.wsgiAdaptor (TestApp(), 'siteCookieKey', testclient)
