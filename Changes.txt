@@ -1,5 +1,15 @@
-WSGI Utils (Version 0.4)
+WSGI Utils (Version 0.5)
 ------------------------
+
+Version 0.5
+-----------
+Changes contributed by Ian Bicking.
+
+New features:
+ - Application exceptions are now logged on the server side.
+
+Bug fixes:
+ - Application iteration objects should be closed after each request.
 
 Version 0.4
 -----------
