@@ -40,26 +40,48 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 	def log_request (self, *args):
 		pass
 		
-	def do_GET (self):
+	def getApp (self):
 		protocol, host, path, parameters, query, fragment = urlparse.urlparse ('http://dummyhost%s' % self.path)
-		logging.info ("Received GET for path %s" % path)
-		if (not self.server.wsgiApplications.has_key (path)):
-			# Not a request for an application, just a file.
-			SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET (self)
+		
+		# Find any application we might have
+		for appPath, app in self.server.wsgiApplications:
+			if (path.startswith (appPath)):
+				# We found the application to use - work out the scriptName and pathInfo
+				pathInfo = path [len (appPath):]
+				if (len (pathInfo) > 0):
+					if (not pathInfo.startswith ('/')):
+						pathInfo = '/' + pathInfo
+				if (appPath.endswith ('/')):
+					scriptName = appPath[:-1]
+				else:
+					scriptName = appPath
+				# Return all this
+				return app, scriptName, pathInfo, query
+		return None, None, None, None
+		
+	def do_GET (self):
+		app, scriptName, pathInfo, query = self.getApp ()
+		
+		if (not app):
+			if (self.server.serveFiles):
+				# Not a request for an application, just a file.
+				SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET (self)
+				return
+			self.send_error (404, 'Application not found.')
 			return
-		self.runWSGIApp (self.server.wsgiApplications [path], path, query)
+		self.runWSGIApp (app, scriptName, pathInfo, query)
 
 	def do_POST (self):
-		protocol, host, path, parameters, query, fragment = urlparse.urlparse ('http://dummyhost%s' % self.path)
-		logging.info ("Received POST for path %s" % path)
-		if (not self.server.wsgiApplications.has_key (path)):
+		app, scriptName, pathInfo, query = self.getApp ()
+		
+		if (not app):
 			# We don't have an application corresponding to this path!
 			self.send_error (404, 'Application not found.')
 			return
-		self.runWSGIApp (self.server.wsgiApplications [path], path, query)
+		self.runWSGIApp (app, scriptName, pathInfo, query)
 
-	def runWSGIApp (self, application, path, query):
-		logging.info ("Running application for path %s" % path)
+	def runWSGIApp (self, application, scriptName, pathInfo, query):
+		logging.info ("Running application with script name %s path %s" % (scriptName, pathInfo))
 		env = {'wsgi.version': (1,0)
 			   ,'wsgi.url_scheme': 'http'
 			   ,'wsgi.input': self.rfile
@@ -68,8 +90,8 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 			   ,'wsgi.multiprocess': 0
 			   ,'wsgi.run_once': 0
 			   ,'REQUEST_METHOD': self.command
-			   ,'SCRIPT_NAME': path
-			   ,'PATH_INFO': ''
+			   ,'SCRIPT_NAME': scriptName
+			   ,'PATH_INFO': pathInfo
 			   ,'QUERY_STRING': query
 			   ,'CONTENT_TYPE': self.headers.get ('Content-Type', '')
 			   ,'CONTENT_LENGTH': self.headers.get ('Content-Length', '')
@@ -117,9 +139,13 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 		self.wfile.write (data)
 
 class WSGIServer (SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
-	def __init__ (self, serverAddress, wsgiApplications):
+	def __init__ (self, serverAddress, wsgiApplications, serveFiles=1):
 		BaseHTTPServer.HTTPServer.__init__ (self, serverAddress, WSGIHandler)
-		self.wsgiApplications = wsgiApplications
+		appList = []
+		for urlPath, wsgiApp in wsgiApplications.items():
+			appList.append ((urlPath, wsgiApp))
+		self.wsgiApplications = appList
+		self.serveFiles = serveFiles
 		self.serverShuttingDown = 0
 
 

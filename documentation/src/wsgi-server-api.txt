@@ -3,8 +3,10 @@ title: wsgiServer API
 <h2>wsgiServer</h2>
 This module provides a multithreaded WSGI server implementation.
 
-<h3>WSGIServer (serverAddress, applicationMap)</h3>
-The serverAddress parameter is a (address, port) tuple that specifies the interface and port number that the server should listen on.  The applicationMap parameter is a dictionary object that contains a map between URL paths and WSGI applications.
+<h3>WSGIServer (serverAddress, applicationMap, serveFiles=1)</h3>
+The serverAddress parameter is a (address, port) tuple that specifies the interface and port number that the server should listen on.  The applicationMap parameter is a dictionary object that contains a map between URL paths and WSGI applications.  All requests beneath the URL path will be passed to the relevant application (i.e. an application that registers '/appone' will receive all requests that begin with '/appone').
+
+If serveFiles is true then any GET requests that do not match an application will be served as normal HTTP file requests.
 
 The class is a sub-class of both SocketServer.ThreadingMixIn and BaseHTTPServer.HTTPServer.
 
