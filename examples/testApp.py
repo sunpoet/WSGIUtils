@@ -98,6 +98,7 @@ calcclient = SessionClient.LocalSessionClient ('calcsession.dbm', 'calcid')
 calcAdaptor = wsgiAdaptor.wsgiAdaptor (CalcApp(), 'siteCookieKey', calcclient)
 
 # Now place the adaptor in WSGI web container
-server = wsgiServer.WSGIServer (('localhost', 1088), {'/test.py': testadaptor.wsgiHook
+print "Serving two apps on http://localhost:1066/test.py and http://localhost:1066/calc.py"
+server = wsgiServer.WSGIServer (("", 1066), {'/test.py': testadaptor.wsgiHook
 													  ,'/calc.py': calcAdaptor.wsgiHook})
 server.serve_forever()
