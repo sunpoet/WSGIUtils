@@ -1,4 +1,4 @@
-WSGI Utils 0.1
+WSGI Utils 0.2
 --------------------------------------------------------------------
 Copyright (c) 2004 Colin Stewart (http://www.owlfish.com/)
 All rights reserved.

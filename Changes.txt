@@ -1,0 +1,17 @@
+WSGI Utils (Version 0.2)
+------------------------
+Version 0.2
+-----------
+New features:
+ - Added some unit tests
+
+Bug fixes:
+ - Use a time stamp rather than the client IP as the second part of the session
+   ID so that it works for WSGI implementations that don't provide the client IP.
+ - Session last access time wasn't updated when it needed to be (sessions 
+   timed out).
+ - Moved session server logging configuration to daemon.
+
+Version 0.1
+-----------
+Initial release.
