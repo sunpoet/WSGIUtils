@@ -8,7 +8,7 @@ This class provides a basic web development framework that should work with any 
 The wsgiAdaptor object provides a basic web development environment within an WSGI server implementation.
 
 <ul>
-	<li>applicationObject - An object that provides a method <code>requestHandler (request)</code>.  The requestHandler method must be multi-thread safe and return a single string as it's output.</li>
+	<li>applicationObject - An object that provides a method <code>requestHandler (request)</code>.  The requestHandler method must be multi-thread safe and return no value.  The requestHandler is passed a Request object which contains details of the request, and provides methods to return content to the client.</li>
 	<li>cookieKey - A secret key that is used to sign all outgoing cookies.  This is used to detect when a client has modified or created a cookie in order to protect against session high-jacking.</li>
 	<li>sessionClient - A <a href="wsgi-session-client-api.html">session client</a> object that provides the ability to save and load session data.</li>
 </ul>
@@ -17,7 +17,7 @@ The wsgiAdaptor object provides a basic web development environment within an WS
 The method that the WSGI implementation should call.
 
 <h2>Request</h2>
-An instance of this class is passed to the application's <code>requsetHandler</code> method for every request made of the application.
+An instance of this class is passed to the application's <code>requsetHandler</code> method for every request made of the application.  If no "sendX" method is called before the handler returns then an Internal Server Error is sent to the client.  The sendX methods can be called multiple times with only the last method called taking effect.
 
 <h3>getFormFields()</h3>
 Returns a FieldStorage instance containing the GET or POST variables (see the Python standard libraries CGI module for more information).
@@ -31,14 +31,22 @@ The username of the authenticated user, or None if the user provided no username
 <h3>getPassword()</h3>
 The password used by the user to authenticate, None if no authentication is provided.
 
-<h3>setContentType (contentType)</h3>
-Set the content type that the application's output will be in.
-
-<h3>unauthorisedBasic (realm)</h3>
-Prompt the user for a username/password for the given realm.
-
-<h3>internalServerError()</h3>
-Flag an internal server error to the user.
-
 <h3>getErrorStream()</h3>
 Returns the stream that applications errors should be written to.
+
+<h3>getRelativePath()</h3>
+Return the relative path (still URL escaped) that was passed to the application.
+
+<h3>sendContent (contentValue, contentType = "test/plain")</h3>
+Set the content to be sent to the client once the application returns.  If the content is not plain text then the contentType should be specified as the second parameter.
+
+<h3>sendUnauthorisedBasic (realm)</h3>
+Prompt the user for a username/password for the given realm.
+
+<h3>sendResponse (responseStr, contentValue, contentType = "text/plain")</h3>
+Set the response and content to be sent to the client once the application returns.  The responseStr should be the HTTP response string, e.g. "500 Internal Error".
+
+<h3>sendFileForPath (path, rootDir = None)</h3>
+Sets the content and contentType to be sent to the client based on the contents of a file for the given path.  The path should be URL escaped.  rootDir is the directory that the path is relative too, taking the current working directory if none is provided.
+
+If the path reaches outside of the rootDir (e.g. a path of '../../etc/passwd') then an IOError is thrown.  No other security checking is performed.

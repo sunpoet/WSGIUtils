@@ -37,59 +37,58 @@ root = logging.getLogger()
 root.setLevel (logging.DEBUG)
 
 class TestApp:
-    def requestHandler (self, request):
-        # This is a multi-threaded area, we must be thread safe.
-        request.setContentType ('text/html')
-        session = request.getSession()
-        if (session.has_key ('lastRequestTime')):
-            lastRequest = session ['lastRequestTime']
-        else:
-            lastRequest = None
-        thisTime = time.time()
-        session ['lastRequestTime'] = thisTime
-        # Use some templating library to generate some output
-        if (lastRequest is None):
-            return "<html><body><h1>The first request!</h1></body></html>"
-        else:
-            return "<html><body><h1>The time is %s, last request was at %s</h1></body></html>" % (str (thisTime), str (lastRequest))
+	def requestHandler (self, request):
+		# This is a multi-threaded area, we must be thread safe.
+		session = request.getSession()
+		if (session.has_key ('lastRequestTime')):
+			lastRequest = session ['lastRequestTime']
+		else:
+			lastRequest = None
+		thisTime = time.time()
+		session ['lastRequestTime'] = thisTime
+		# Use some templating library to generate some output
+		if (lastRequest is None):
+			request.sendContent ("<html><body><h1>The first request!</h1></body></html>", "text/html")
+		else:
+			request.sendContent ("<html><body><h1>The time is %s, last request was at %s</h1></body></html>" % (str (thisTime), str (lastRequest)), "text/html")
 
 class CalcApp:
-    """ A simple calculator app that uses a username/password of 'user/user' and demonstrates forms.
-    """
-    def requestHandler (self, request):
-        request.setContentType ('text/html')
+	""" A simple calculator app that uses a username/password of 'user/user' and demonstrates forms.
+	"""
+	def requestHandler (self, request):
+		# Authenticate the user
+		username = request.getUsername()
+		password = request.getPassword()
+		if (username is None or username != 'user'):
+			request.sendUnauthorisedBasic ("Calculator")
+			return
+		if (password is None or password != 'user'):
+			request.sendUnauthorisedBasic ("Calculator")
+			return
 
-        # Authenticate the user
-        username = request.getUsername()
-        password = request.getPassword()
-        if (username is None or username != 'user'):
-            request.unauthorisedBasic ("Calculator")
-            return ""
-        if (password is None or password != 'user'):
-            request.unauthorisedBasic ("Calculator")
-            return ""
+		# We have a valid user, so get the form entries
+		formData = request.getFormFields()
+		try:
+			firstValue = float (formData.getfirst ('value1', "0"))
+			secondValue = float (formData.getfirst ('value2', "0"))
+		except:
+			# No valid numbers, try again
+			self.displayForm(request, 0)
+			return
+		# Display the sum
+		self.displayForm (request, firstValue + secondValue)
+		return
 
-        # We have a valid user, so get the form entries
-        formData = request.getFormFields()
-        try:
-            firstValue = float (formData.getfirst ('value1', "0"))
-            secondValue = float (formData.getfirst ('value2', "0"))
-        except:
-            # No valid numbers, try again
-            return self.displayForm(request, 0)
-        # Display the sum
-        return self.displayForm (request, firstValue + secondValue)
-
-    def displayForm (self, request, sumValue):
-        return """<html><body><h1>Calculator</h1>
-                                <h2>Last answer was: %s</h2>
-                                <form name="calc">
-                                    <input name="value1" type="text"><br>
-                                    <input name="value2" type="text">
-                                    <button name="Calculate" type="submit">Cal.</button>
-                                </form>
-                        </body></html>""" % str (sumValue)
-        
+	def displayForm (self, request, sumValue):
+		request.sendContent ("""<html><body><h1>Calculator</h1>
+								<h2>Last answer was: %s</h2>
+								<form name="calc">
+									<input name="value1" type="text"><br>
+									<input name="value2" type="text">
+									<button name="Calculate" type="submit">Cal.</button>
+								</form>
+						</body></html>""" % str (sumValue), "text/html")
+		
 
 # We will use a local session client because we are not multi-process
 testclient = SessionClient.LocalSessionClient('session.dbm', 'testappid')
@@ -100,5 +99,5 @@ calcAdaptor = wsgiAdaptor.wsgiAdaptor (CalcApp(), 'siteCookieKey', calcclient)
 
 # Now place the adaptor in WSGI web container
 server = wsgiServer.WSGIServer (('localhost', 1088), {'/test.py': testadaptor.wsgiHook
-                                                      ,'/calc.py': calcAdaptor.wsgiHook})
+													  ,'/calc.py': calcAdaptor.wsgiHook})
 server.serve_forever()

@@ -28,17 +28,20 @@
 		If you make any bug fixes or feature enhancements please let me know!
 		
 		A simple example - a counting web site.
+		Note that increments in modern browsers go up twice because two 
+		requests are made - one for '/' and one for '/favicon.ico'
 """
+import logging, time
 
 from wsgiutils import SessionClient, wsgiAdaptor, wsgiServer
 class TestApp:
 	def requestHandler (self, request):
-		request.setContentType ('text/html')
 		session = request.getSession()
 		count = session.get ('counter', 0)
 		count += 1
 		session ['counter'] = count
-		return "<html><body><h1>Visits: %s</h1></body></html>" % str (count)
+		request.sendContent ("<html><body><h1>Visits: %s</h1></body></html>" % str (count), "text/html")
+		
 	
 testclient = SessionClient.LocalSessionClient('session.dbm', 'testappid')
 testadaptor = wsgiAdaptor.wsgiAdaptor (TestApp(), 'siteCookieKey', testclient)

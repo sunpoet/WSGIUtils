@@ -30,7 +30,7 @@
 		Provides a basic web environment within a WSGI server.
 """
 
-import Cookie, hmac, base64, socket, xdrlib, struct, pickle, cgi
+import Cookie, hmac, base64, socket, xdrlib, struct, pickle, cgi, urllib, os, os.path, SimpleHTTPServer
 import logging	
 		
 class simpleCookie (Cookie.SimpleCookie):
@@ -72,15 +72,17 @@ class simpleCookie (Cookie.SimpleCookie):
 		return Cookie.SimpleCookie.value_encode (self, valuetostore)
 		
 class Request (object):
-	def __init__ (self, errorStream):
+	def __init__ (self, errorStream, relativePath):
 		self.session = None
 		self.user = None
 		self.password = None
 		self.formFields = None
 		self.contentType = 'text/plain'
-		self.response = "200 OK"
+		self.contentValue = "Application returned no content."
+		self.response = "500 Internal Server Error"
 		self.authorisationHeaders = []
 		self.errorStream = errorStream
+		self.relativePath = relativePath
 	
 	def getFormFields (self):
 		return self.formFields
@@ -94,18 +96,61 @@ class Request (object):
 	def getPassword (self):
 		return self.password
 		
-	def setContentType (self, newType):
-		self.contentType = newType
+	def getErrorStream (self):
+		return self.errorStream 
 		
-	def unauthorisedBasic (self, realm):
+	def getRelativePath (self):
+		return self.relativePath
+		
+	def sendContent (self, contentValue, contentType = "text/plain"):
+		self.contentValue = contentValue
+		self.contentType = contentType
+		self.response = "200 OK"
+		
+	def sendUnauthorisedBasic (self, realm):
 		self.response = "401 Unauthorized"
 		self.authorisationHeaders.append (('WWW-Authenticate','Basic realm="%s"' % realm))
 		
-	def internalServerError (self):
-		self.response = "500 Internal Server Error"
+	def sendResponse (self, responseStr, contentValue, contentType = "text/plain"):
+		self.response = responseStr
+		self.contentValue = contentValue
+		self.contentType = contentType
 		
-	def getErrorStream (self):
-		return self.errorStream 
+	def sendFileForPath (self, path, rootDir = None):
+		""" Returns a tuple of the file found at path as a string and the guessed content type of the file.
+			path - URL Encoded path that points to a file.
+			rootDir - The root directory the path is relative to.  If None is specified then use CWD
+		"""
+		if (rootDir is None):
+			startDir = os.path.abspath (os.getcwd ())
+		else:
+			startDir = os.path.abspath (rootDir)
+		
+		decodedPath = urllib.unquote (path)
+		if (decodedPath.startswith ('/')):
+			decodedPath = decodedPath [1:]
+		# Build the path and collapse any indirection (../)
+		realPath = os.path.abspath (os.path.join (startDir, decodedPath))
+		# Check that the path is really underneath the root directory
+		if (os.path.commonprefix ([startDir, realPath]) != startDir):
+			msg = "Attempt to read file %s which is outside of root directory %s" % (realPath, startDir)
+			raise IOError (msg)
+		# Read the file and return it
+		try:
+			theFile = open (realPath, 'r')
+			theFileContents = theFile.read()
+		finally:
+			try:
+				theFile.close()
+			except:
+				pass
+			
+		# Guess the content type.
+		fileExtension = os.path.splitext (realPath)[1]
+		contentType = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map [fileExtension]
+		self.contentValue = theFileContents
+		self.contentType = contentType
+		self.response = "200 OK"
 	
 class wsgiAdaptor (object):
 	def __init__ (self, application, cookieKey, sessionClient):
@@ -124,7 +169,7 @@ class wsgiAdaptor (object):
 		self.log.info ("Received via basic authorisation username: %s password: %s" % (userName, password))
 
 	def wsgiHook (self, environment, start_response):
-		request = Request (environment ['wsgi.errors'])
+		request = Request (environment ['wsgi.errors'], environment.get ('PATH_INFO', ""))
 		
 		# Look for authorised users.
 		if (environment.has_key ('HTTP_AUTHORIZATION')):
@@ -139,7 +184,9 @@ class wsgiAdaptor (object):
 			else:
 				self.log.error ("Unsupported authorisation method %s used!" % authType)
 				# Internal application error.
-				start_response ("501 Not Implemented", [])
+				headers = []
+				headers.append (('Content-type', request.contentType))
+				start_response ("501 Not Implemented", headers)
 				return []
 		
 		# Do we have any cookies?
@@ -161,12 +208,22 @@ class wsgiAdaptor (object):
 		# 3 - Output headers, including the Cookies.
 		
 		# Get the application output
-		output = self.application.requestHandler (request)
+		try:
+			self.application.requestHandler (request)
+		except Exception, e:
+			self.log.critical ("Application experienced unhandled error: " + str (e))
+			request.sendResponse ("500 Internal Server Error", "Internal application error")
+			start_response (request.response, [])
+			return iter ([request.contentValue])
 		# Persist the session
 		self.sessionClient.saveSession (request.session)
 		# Get all the headers 
-		headers = request.authorisationHeaders
+		if (request.response == "401 Unauthorized"):
+			headers = request.authorisationHeaders
+		else:
+			headers = []
 		headers.append (('Content-type', request.contentType))
+		headers.append (('Content-length', str (len (request.contentValue))))
 		# Add the cookies
 		for cookie in cookies.values():
 			headers.append (('Set-Cookie', cookie.OutputString()))
@@ -174,5 +231,5 @@ class wsgiAdaptor (object):
 		# Finally start the transaction with wsgi
 		start_response (request.response, headers)
 		# Now return an iterator for the output
-		return iter ([output])
+		return iter ([request.contentValue])
 		

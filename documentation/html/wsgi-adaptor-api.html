@@ -12,14 +12,14 @@
 <h3>wsgiAdaptor (applicationObject, cookieKey, sessionClient)</h3>
 <p>The wsgiAdaptor object provides a basic web development environment within an WSGI server implementation.</p>
 <ul>
-	<li>applicationObject - An object that provides a method <code>requestHandler (request)</code>.&nbsp; The requestHandler method must be multi-thread safe and return a single string as it's output.</li>
+	<li>applicationObject - An object that provides a method <code>requestHandler (request)</code>.&nbsp; The requestHandler method must be multi-thread safe and return no value.&nbsp; The requestHandler is passed a Request object which contains details of the request, and provides methods to return content to the client.</li>
 	<li>cookieKey - A secret key that is used to sign all outgoing cookies.&nbsp; This is used to detect when a client has modified or created a cookie in order to protect against session high-jacking.</li>
 	<li>sessionClient - A <a href="wsgi-session-client-api.html">session client</a> object that provides the ability to save and load session data.</li>
 </ul>
 <h3>wsgiHook (environment, start_response)</h3>
 <p>The method that the WSGI implementation should call.</p>
 <h2>Request</h2>
-<p>An instance of this class is passed to the application's <code>requsetHandler</code> method for every request made of the application.</p>
+<p>An instance of this class is passed to the application's <code>requsetHandler</code> method for every request made of the application.&nbsp; If no "sendX" method is called before the handler returns then an Internal Server Error is sent to the client.&nbsp; The sendX methods can be called multiple times with only the last method called taking effect.</p>
 <h3>getFormFields()</h3>
 <p>Returns a FieldStorage instance containing the GET or POST variables (see the Python standard libraries CGI module for more information).</p>
 <h3>getSession()</h3>
@@ -28,21 +28,26 @@
 <p>The username of the authenticated user, or None if the user provided no username.</p>
 <h3>getPassword()</h3>
 <p>The password used by the user to authenticate, None if no authentication is provided.</p>
-<h3>setContentType (contentType)</h3>
-<p>Set the content type that the application's output will be in.</p>
-<h3>unauthorisedBasic (realm)</h3>
-<p>Prompt the user for a username/password for the given realm.</p>
-<h3>internalServerError()</h3>
-<p>Flag an internal server error to the user.</p>
 <h3>getErrorStream()</h3>
 <p>Returns the stream that applications errors should be written to.</p>
+<h3>getRelativePath()</h3>
+<p>Return the relative path (still URL escaped) that was passed to the application.</p>
+<h3>sendContent (contentValue, contentType = "test/plain")</h3>
+<p>Set the content to be sent to the client once the application returns.&nbsp; If the content is not plain text then the contentType should be specified as the second parameter.</p>
+<h3>sendUnauthorisedBasic (realm)</h3>
+<p>Prompt the user for a username/password for the given realm.</p>
+<h3>sendResponse (responseStr, contentValue, contentType = "text/plain")</h3>
+<p>Set the response and content to be sent to the client once the application returns.&nbsp; The responseStr should be the HTTP response string, e.g. "500 Internal Error".</p>
+<h3>sendFileForPath (path, rootDir = None)</h3>
+<p>Sets the content and contentType to be sent to the client based on the contents of a file for the given path.&nbsp; The path should be URL escaped.&nbsp; rootDir is the directory that the path is relative too, taking the current working directory if none is provided.</p>
+<p>If the path reaches outside of the rootDir (e.g. a path of '../../etc/passwd') then an IOError is thrown.&nbsp; No other security checking is performed.</p>
 </div>
 	  
   <p id="version">PubTal Version </p>
   <div id="footer">
   <p>File: wsgi-adaptor-api.txt</p>
-  <p>Last modified: Sat, 06 Nov 2004 12:00:05 EST</p>
+  <p>Last modified: Wed, 01 Dec 2004 22:37:32 EST</p>
   <p>Copyright 2004 Colin Stewart</p>
-  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2</p>
   </div>
 </body>
