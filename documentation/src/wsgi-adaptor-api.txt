@@ -37,11 +37,17 @@ Returns the stream that applications errors should be written to.
 <h3>getRelativePath()</h3>
 Return the relative path (still URL escaped) that was passed to the application.
 
-<h3>sendContent (contentValue, contentType = "test/plain")</h3>
+<h3>getURLPrefix()</h3>
+Returns the part of the URL up to the parameters (e.g http://server.com/scriptName.py).
+
+<h3>sendContent (contentValue, contentType = "text/plain")</h3>
 Set the content to be sent to the client once the application returns.  If the content is not plain text then the contentType should be specified as the second parameter.
 
 <h3>sendUnauthorisedBasic (realm)</h3>
 Prompt the user for a username/password for the given realm.
+
+<h3>sendSeeOtherRedirect (newDestination)</h3>
+Send a 303 HTTP redirect to the newDestination.
 
 <h3>sendResponse (responseStr, contentValue, contentType = "text/plain")</h3>
 Set the response and content to be sent to the client once the application returns.  The responseStr should be the HTTP response string, e.g. "500 Internal Error".

@@ -32,10 +32,14 @@
 <p>Returns the stream that applications errors should be written to.</p>
 <h3>getRelativePath()</h3>
 <p>Return the relative path (still URL escaped) that was passed to the application.</p>
-<h3>sendContent (contentValue, contentType = "test/plain")</h3>
+<h3>getURLPrefix()</h3>
+<p>Returns the part of the URL up to the parameters (e.g http://server.com/scriptName.py).</p>
+<h3>sendContent (contentValue, contentType = "text/plain")</h3>
 <p>Set the content to be sent to the client once the application returns.&nbsp; If the content is not plain text then the contentType should be specified as the second parameter.</p>
 <h3>sendUnauthorisedBasic (realm)</h3>
 <p>Prompt the user for a username/password for the given realm.</p>
+<h3>sendSeeOtherRedirect (newDestination)</h3>
+<p>Send a 303 HTTP redirect to the newDestination.</p>
 <h3>sendResponse (responseStr, contentValue, contentType = "text/plain")</h3>
 <p>Set the response and content to be sent to the client once the application returns.&nbsp; The responseStr should be the HTTP response string, e.g. "500 Internal Error".</p>
 <h3>sendFileForPath (path, rootDir = None)</h3>
@@ -46,8 +50,8 @@
   <p id="version">PubTal Version </p>
   <div id="footer">
   <p>File: wsgi-adaptor-api.txt</p>
-  <p>Last modified: Wed, 01 Dec 2004 22:37:32 EST</p>
-  <p>Copyright 2004 Colin Stewart</p>
-  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2</p>
+  <p>Last modified: Tue, 15 Feb 2005 19:57:18 GMT</p>
+  <p>Copyright 2005 Colin Stewart</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.3-dev</p>
   </div>
 </body>

@@ -57,7 +57,7 @@ class simpleCookie (Cookie.SimpleCookie):
 			# Correctly encoded!
 			return realValue, avalue
 		else:
-			self.log.warn ("Cookie tampering detected!")
+			self.log.warn ("Cookie tampering detected key %s expected key %s!" % (coder.hexdigest(), expectedKey))
 			return None, avalue
 	
 	def value_encode (self, avalue):
@@ -72,7 +72,7 @@ class simpleCookie (Cookie.SimpleCookie):
 		return Cookie.SimpleCookie.value_encode (self, valuetostore)
 		
 class Request (object):
-	def __init__ (self, errorStream, relativePath):
+	def __init__ (self, environment):
 		self.session = None
 		self.user = None
 		self.password = None
@@ -81,8 +81,27 @@ class Request (object):
 		self.contentValue = "Application returned no content."
 		self.response = "500 Internal Server Error"
 		self.authorisationHeaders = []
-		self.errorStream = errorStream
-		self.relativePath = relativePath
+		self.redirectHeaders = []
+		self.errorStream = environment ['wsgi.errors']
+		self.relativePath = environment.get ('PATH_INFO', "")
+		
+		# Re-construct the URL prefix.
+		url = environment ['wsgi.url_scheme'] + '://'
+		
+		if environment.has_key ('HTTP_HOST'):
+			url += environment ['HTTP_HOST']
+		else:
+			url += environment ['SERVER_NAME']
+			
+			if environment ['wsgi.url_scheme'] == 'https':
+				if environment ['SERVER_PORT'] != '443':
+				   url += ':' + environment ['SERVER_PORT']
+			else:
+				if environment ['SERVER_PORT'] != '80':
+				   url += ':' + environment ['SERVER_PORT']
+		
+		url += urllib.quote(environment.get('SCRIPT_NAME',''))
+		self.urlPrefix = url
 	
 	def getFormFields (self):
 		return self.formFields
@@ -102,6 +121,9 @@ class Request (object):
 	def getRelativePath (self):
 		return self.relativePath
 		
+	def getURLPrefix (self):
+		return self.urlPrefix
+		
 	def sendContent (self, contentValue, contentType = "text/plain"):
 		self.contentValue = contentValue
 		self.contentType = contentType
@@ -110,6 +132,12 @@ class Request (object):
 	def sendUnauthorisedBasic (self, realm):
 		self.response = "401 Unauthorized"
 		self.authorisationHeaders.append (('WWW-Authenticate','Basic realm="%s"' % realm))
+	
+	def sendSeeOtherRedirect (self, newDestination):
+		self.response = "303 See Other"
+		self.redirectHeaders.append (('Location', newDestination))
+		self.contentValue = "Loading..."
+		self.contentType = "text/plain"
 		
 	def sendResponse (self, responseStr, contentValue, contentType = "text/plain"):
 		self.response = responseStr
@@ -158,6 +186,42 @@ class wsgiAdaptor (object):
 		self.cookieKey = cookieKey
 		self.sessionClient = sessionClient
 		self.log = logging.getLogger ("wsgiAdaptor")
+		self.authHandlers = {'basic': self.parseBasicAuthorisation}
+		
+	def getRequest (self, environment):
+		""" Used by sub-classes to define their own Request objects. """
+		return Request (environment)
+	
+	def handleAuthorisation (self, request, environment):
+		# Find authorisation headers and handle them, updating the request object.
+		# If a response is to be immediately sent to the user then return true, otherwise false
+		# Look for authorised users.
+		if (environment.has_key ('HTTP_AUTHORIZATION')):
+			self.log.debug ("Found authorization header.")
+			credentials = environment ['HTTP_AUTHORIZATION']
+			authTypeOffset = credentials.find (' ')
+			authType = credentials [:authTypeOffset].lower()
+			authCredentials = credentials [authTypeOffset + 1:]
+			authHandler = self.authHandlers.get (authType, None)
+			if (authHandler):
+				authHandler (request, authCredentials)
+				return 0
+			else:
+				self.log.error ("Unsupported authorisation method %s used!" % authType)
+				# Internal application error.
+				request.sendResponse ("501 Not Implemented", "Unsupported authorisation method.")
+				return 1
+		return 0
+				
+	def getCookies (self, environment):
+		# Do we have any cookies?
+		if (environment.has_key ('HTTP_COOKIE')):
+			# Yes we have cookies!
+			cookieValue = environment ['HTTP_COOKIE']
+			cookies = simpleCookie (self.cookieKey, cookieValue)
+		else:
+			cookies = simpleCookie (self.cookieKey, "")
+		return cookies
 		
 	def parseBasicAuthorisation (self, request, authCredentials):
 		userpass = base64.decodestring (authCredentials)
@@ -169,64 +233,49 @@ class wsgiAdaptor (object):
 		self.log.info ("Received via basic authorisation username: %s password: %s" % (userName, password))
 
 	def wsgiHook (self, environment, start_response):
-		request = Request (environment ['wsgi.errors'], environment.get ('PATH_INFO', ""))
-		
-		# Look for authorised users.
-		if (environment.has_key ('HTTP_AUTHORIZATION')):
-			self.log.debug ("Found authorization header.")
-			credentials = environment ['HTTP_AUTHORIZATION']
-			authTypeOffset = credentials.find (' ')
-			authType = credentials [:authTypeOffset]
-			authCredentials = credentials [authTypeOffset + 1:]
-			if (authType.lower() == 'basic'):
-				self.log.debug ("Found basic authorization header.")
-				self.parseBasicAuthorisation (request, authCredentials)
-			else:
-				self.log.error ("Unsupported authorisation method %s used!" % authType)
-				# Internal application error.
-				headers = []
-				headers.append (('Content-type', request.contentType))
-				start_response ("501 Not Implemented", headers)
-				return []
-		
-		# Do we have any cookies?
-		if (environment.has_key ('HTTP_COOKIE')):
-			# Yes we have cookies!
-			cookieValue = environment ['HTTP_COOKIE']
-			cookies = simpleCookie (self.cookieKey, cookieValue)
-		else:
-			cookies = simpleCookie (self.cookieKey, "")
+		request = self.getRequest(environment)
+		if (self.handleAuthorisation (request, environment)):
+			return self.renderToClient (start_response, request, None)
+			
+		cookies = self.getCookies (environment)
 		
 		# Get our session
 		request.session = self.sessionClient.getSession (cookies)
 		# And the form parameters
 		request.formFields = cgi.FieldStorage (fp=environment ['wsgi.input'], environ=environment)
 		
-		# Things left to do:
-		# 1 - Get the output from the application
-		# 2 - Save the session 
-		# 3 - Output headers, including the Cookies.
-		
-		# Get the application output
 		try:
 			self.application.requestHandler (request)
 		except Exception, e:
 			self.log.critical ("Application experienced unhandled error: " + str (e))
 			request.sendResponse ("500 Internal Server Error", "Internal application error")
-			start_response (request.response, [])
-			return iter ([request.contentValue])
-		# Persist the session
-		self.sessionClient.saveSession (request.session)
+			return self.renderToClient (start_response, request, cookies)
+		
+		if (request.session is not None):
+			# Persist the session
+			self.sessionClient.saveSession (request.session)
+		
+		return self.renderToClient (start_response, request, cookies)
+		
+	def renderToClient (self, start_response, request, cookies):
 		# Get all the headers 
 		if (request.response == "401 Unauthorized"):
 			headers = request.authorisationHeaders
+		elif (request.response == "303 See Other"):
+			headers = request.redirectHeaders
 		else:
 			headers = []
 		headers.append (('Content-type', request.contentType))
 		headers.append (('Content-length', str (len (request.contentValue))))
-		# Add the cookies
-		for cookie in cookies.values():
-			headers.append (('Set-Cookie', cookie.OutputString()))
+		if (cookies is not None):
+			# Add the cookies
+			for cookie in cookies.values():
+				headers.append (('Set-Cookie', cookie.OutputString()))
+		
+		# Finally start the transaction with wsgi
+		start_response (request.response, headers)
+		# Now return an iterator for the output
+		return iter ([request.contentValue])
 		
 		# Finally start the transaction with wsgi
 		start_response (request.response, headers)

@@ -1,5 +1,16 @@
-WSGI Utils (Version 0.3)
+WSGI Utils (Version 0.4)
 ------------------------
+
+Version 0.4
+-----------
+More API cleanups and some bug fixes.
+
+New features:
+ - Request object provides ability to redirect (303) to another page.
+ - Removed client IP address from session management.
+ 
+Bug fixes:
+ - Port number should be provided as number rather than string in SERVER_PORT.
 
 Version 0.3
 -----------
