@@ -32,20 +32,6 @@
 
 import os, logging, threading, Queue, socket, anydbm, xdrlib, struct
 
-rootLogger = logging.getLogger()
-rootLogger.setLevel (logging.DEBUG)
-
-# Setup the log file
-loggingHandler = logging.FileHandler ('/var/log/SessionServer.log')
-loggingFormatter = logging.Formatter ('%(asctime)s %(levelname)s %(name)s %(message)s')
-loggingHandler.setFormatter (loggingFormatter)
-rootLogger.addHandler (loggingHandler)
-
-SOCKET_ADDR = '/tmp/sessionServer.sock'
-SESSION_FILE = '/tmp/sessionData.db'
-
-logging.info ("SessionServer loading...")
-
 # Wire protocol is based on XDR messages.  Each message is precedded by a 4 byte length in network byte order.
 # Client can issue a message of two strings, GET, KEY
 # OR three strings: SET, KEY, DATA
