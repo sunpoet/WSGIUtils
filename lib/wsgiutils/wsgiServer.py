@@ -97,7 +97,7 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 			   ,'CONTENT_LENGTH': self.headers.get ('Content-Length', '')
 			   ,'REMOTE_ADDR': self.client_address[0]
 			   ,'SERVER_NAME': self.server.server_address [0]
-			   ,'SERVER_PORT': self.server.server_address [1]
+			   ,'SERVER_PORT': str (self.server.server_address [1])
 			   ,'SERVER_PROTOCOL': self.request_version
 			   }
 		for httpHeader, httpValue in self.headers.items():
