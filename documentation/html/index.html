@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>WSGI Utils</title>
+	<link href="../style/site.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h1>WSGI Utils</h1>
+  <p id="subject">Utility libraries to assist in developing simple WSGI applications.</p>
+  <div><p>WSGI Utils are a package of standalone utility libraries that ease the development of simple WSGI programs.&nbsp; The functionality provided is limited at the moment, patches to add new features and address defects are most welcome.</p>
+<h2>Example</h2>
+<p>A simple example of how these utilities can be used together:</p>
+<pre><code>
+from wsgiutils import SessionClient, wsgiAdaptor, wsgiServer
+class TestApp:
+	def requestHandler (self, request):
+		request.setContentType ('text/html')
+		session = request.getSession()
+		count = session.get ('counter', 0)
+		count += 1
+		session ['counter'] = count
+		return "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Visits: %s&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" % str (count)
+	
+testclient = SessionClient.LocalSessionClient('session.dbm', 'testappid')
+testadaptor = wsgiAdaptor.wsgiAdaptor (TestApp(), 'siteCookieKey', testclient)
+server = wsgiServer.WSGIServer (('localhost', 1088), {'/': testadaptor.wsgiHook})
+server.serve_forever()
+</code></pre>
+<h2>wsgiServer - <a href="wsgi-server-api.html" title="API Documentation">API</a></h2>
+<p>This module provides a very simple multi-threaded WSGI server implementation based on SimpleHTTPServer from Python's standard library.&nbsp; Multiple applications can be hosted at different URLs.</p>
+<h2>wsgiAdaptor - <a href="wsgi-adaptor-api.html" title="API Documentation">API</a></h2>
+<p>A very basic web application framework that works with WSGI compliant servers.&nbsp; Provides Basic authentication, signed cookies, and persistent sessions&nbsp; (see SessionClient).</p>
+<h2>SessionClient - <a href="wsgi-session-client-api.html" title="API Documentation">API</a></h2>
+<p>This module provides simple session management.&nbsp; Two implementations are given: LocalSessionClient and SessionServerClient.&nbsp; The LocalSessionClient class is suitable for use with multi-threaded, single process, long-lived WSGI implementations such as wsgiServer.&nbsp; SessionServerClient communicates to the SessionServer via Unix domain sockets and is suitable for multi-process WSGI implementations such as CGI.</p>
+<h2>SessionServer &amp; SessionServerDaemon - <a href="wsgi-session-server-api.html" title="API Documentation">API</a></h2>
+<p>Listens on a Unix domain socket for connections from a single client and provides session persistance.</p>
+</div>
+	  
+  <p id="version">PubTal Version </p>
+  <div id="footer">
+  <p>File: index.txt</p>
+  <p>Last modified: Wed, 03 Nov 2004 22:27:15 EST</p>
+  <p>Copyright 2004 Colin Stewart</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  </div>
+</body>

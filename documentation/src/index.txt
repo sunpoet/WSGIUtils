@@ -1,0 +1,35 @@
+title: WSGI Utils
+subject: Utility libraries to assist in developing simple WSGI applications.
+
+WSGI Utils are a package of standalone utility libraries that ease the development of simple WSGI programs.  The functionality provided is limited at the moment, patches to add new features and address defects are most welcome.
+
+<h2>Example</h2>
+A simple example of how these utilities can be used together:
+<pre><code>
+from wsgiutils import SessionClient, wsgiAdaptor, wsgiServer
+class TestApp:
+	def requestHandler (self, request):
+		request.setContentType ('text/html')
+		session = request.getSession()
+		count = session.get ('counter', 0)
+		count += 1
+		session ['counter'] = count
+		return "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Visits: %s&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;" % str (count)
+	
+testclient = SessionClient.LocalSessionClient('session.dbm', 'testappid')
+testadaptor = wsgiAdaptor.wsgiAdaptor (TestApp(), 'siteCookieKey', testclient)
+server = wsgiServer.WSGIServer (('localhost', 1088), {'/': testadaptor.wsgiHook})
+server.serve_forever()
+</code></pre>
+
+<h2>wsgiServer - <a href="wsgi-server-api.html" title="API Documentation">API</a></h2>
+This module provides a very simple multi-threaded WSGI server implementation based on SimpleHTTPServer from Python's standard library.  Multiple applications can be hosted at different URLs.
+
+<h2>wsgiAdaptor - <a href="wsgi-adaptor-api.html" title="API Documentation">API</a></h2>
+A very basic web application framework that works with WSGI compliant servers.  Provides Basic authentication, signed cookies, and persistent sessions  (see SessionClient).
+
+<h2>SessionClient - <a href="wsgi-session-client-api.html" title="API Documentation">API</a></h2>
+This module provides simple session management.  Two implementations are given: LocalSessionClient and SessionServerClient.  The LocalSessionClient class is suitable for use with multi-threaded, single process, long-lived WSGI implementations such as wsgiServer.  SessionServerClient communicates to the SessionServer via Unix domain sockets and is suitable for multi-process WSGI implementations such as CGI.
+
+<h2>SessionServer & SessionServerDaemon - <a href="wsgi-session-server-api.html" title="API Documentation">API</a></h2>
+Listens on a Unix domain socket for connections from a single client and provides session persistance.

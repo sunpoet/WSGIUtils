@@ -1,0 +1,14 @@
+title: SessionServer & SessionServerDaemon API
+subject: Server implementation for persisting session data
+
+<h2>Server</h2>
+A standalone server that maintains session information.
+
+<h3>Server (socketLocation, dbFileName)</h3>
+Opens a new Unix domain socket at the socketLocation and uses anydbm to persist data in the file dbFileName.
+
+<h3>runServer()</h3>
+Runs the server until signal 2 is caught.
+
+<h2>SessionServerDaemon</h2>
+A script that starts a SessionServer as a Daemon process.

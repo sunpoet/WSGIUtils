@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>wsgiAdaptor API</title>
+	<link href="../style/site.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h1>wsgiAdaptor API</h1>
+  <p id="subject">API for a simple WSGI web framework</p>
+  <div><h2>wsgiAdaptor</h2>
+<p>This class provides a basic web development framework that should work with any WSGI implementation.</p>
+<h3>wsgiAdaptor (applicationObject, cookieKey, sessionClient)</h3>
+<p>The wsgiAdaptor object provides a basic web development environment within an WSGI server implementation.</p>
+<ul>
+	<li>applicationObject - An object that provides a method <code>requestHandler (request)</code>.&nbsp; The requestHandler method must be multi-thread safe and return a single string as it's output.</li>
+	<li>cookieKey - A secret key that is used to sign all outgoing cookies.&nbsp; This is used to detect when a client has modified or created a cookie in order to protect against session high-jacking.</li>
+	<li>sessionClient - A <a href="wsgi-session-client-api.html">session client</a> object that provides the ability to save and load session data.</li>
+</ul>
+<h3>wsgiHook (environment, start_response)</h3>
+<p>The method that the WSGI implementation should call.</p>
+<h2>Request</h2>
+<p>An instance of this class is passed to the application's <code>requsetHandler</code> method for every request made of the application.</p>
+<h3>getFormFields()</h3>
+<p>Returns a FieldStorage instance containing the GET or POST variables (see the Python standard libraries CGI module for more information).</p>
+<h3>getSession()</h3>
+<p>Returns the session associated with this client.&nbsp; The session is a Mapping type (e.g. dictionary).&nbsp; Values added to the session will automatically be saved into the session.&nbsp; Be aware that as the size of the session increases the time taken to load and save the session will grow.</p>
+<h3>getUsername()</h3>
+<p>The username of the authenticated user, or None if the user provided no username.</p>
+<h3>getPassword()</h3>
+<p>The password used by the user to authenticate, None if no authentication is provided.</p>
+<h3>setContentType (contentType)</h3>
+<p>Set the content type that the application's output will be in.</p>
+<h3>unauthorisedBasic (realm)</h3>
+<p>Prompt the user for a username/password for the given realm.</p>
+<h3>internalServerError()</h3>
+<p>Flag an internal server error to the user.</p>
+<h3>getErrorStream()</h3>
+<p>Returns the stream that applications errors should be written to.</p>
+</div>
+	  
+  <p id="version">PubTal Version </p>
+  <div id="footer">
+  <p>File: wsgi-adaptor-api.txt</p>
+  <p>Last modified: Sat, 06 Nov 2004 12:00:05 EST</p>
+  <p>Copyright 2004 Colin Stewart</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  </div>
+</body>

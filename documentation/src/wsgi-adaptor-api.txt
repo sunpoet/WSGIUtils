@@ -1,0 +1,44 @@
+title: wsgiAdaptor API
+subject: API for a simple WSGI web framework
+
+<h2>wsgiAdaptor</h2>
+This class provides a basic web development framework that should work with any WSGI implementation.
+
+<h3>wsgiAdaptor (applicationObject, cookieKey, sessionClient)</h3>
+The wsgiAdaptor object provides a basic web development environment within an WSGI server implementation.
+
+<ul>
+	<li>applicationObject - An object that provides a method <code>requestHandler (request)</code>.  The requestHandler method must be multi-thread safe and return a single string as it's output.</li>
+	<li>cookieKey - A secret key that is used to sign all outgoing cookies.  This is used to detect when a client has modified or created a cookie in order to protect against session high-jacking.</li>
+	<li>sessionClient - A <a href="wsgi-session-client-api.html">session client</a> object that provides the ability to save and load session data.</li>
+</ul>
+
+<h3>wsgiHook (environment, start_response)</h3>
+The method that the WSGI implementation should call.
+
+<h2>Request</h2>
+An instance of this class is passed to the application's <code>requsetHandler</code> method for every request made of the application.
+
+<h3>getFormFields()</h3>
+Returns a FieldStorage instance containing the GET or POST variables (see the Python standard libraries CGI module for more information).
+
+<h3>getSession()</h3>
+Returns the session associated with this client.  The session is a Mapping type (e.g. dictionary).  Values added to the session will automatically be saved into the session.  Be aware that as the size of the session increases the time taken to load and save the session will grow.
+
+<h3>getUsername()</h3>
+The username of the authenticated user, or None if the user provided no username.
+
+<h3>getPassword()</h3>
+The password used by the user to authenticate, None if no authentication is provided.
+
+<h3>setContentType (contentType)</h3>
+Set the content type that the application's output will be in.
+
+<h3>unauthorisedBasic (realm)</h3>
+Prompt the user for a username/password for the given realm.
+
+<h3>internalServerError()</h3>
+Flag an internal server error to the user.
+
+<h3>getErrorStream()</h3>
+Returns the stream that applications errors should be written to.

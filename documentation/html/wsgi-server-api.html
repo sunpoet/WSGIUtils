@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>wsgiServer API</title>
+	<link href="../style/site.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h1>wsgiServer API</h1>
+  <p id="subject"></p>
+  <div><h2>wsgiServer</h2>
+<p>This module provides a multithreaded WSGI server implementation.</p>
+<h3>WSGIServer (serverAddress, applicationMap)</h3>
+<p>The serverAddress parameter is a (address, port) tuple that specifies the interface and port number that the server should listen on.&nbsp; The applicationMap parameter is a dictionary object that contains a map between URL paths and WSGI applications.</p>
+<p>The class is a sub-class of both SocketServer.ThreadingMixIn and BaseHTTPServer.HTTPServer.</p>
+<h4>Example</h4>
+<pre><code>server = wsgiServer.WSGIServer (('localhost', 1088), wsgiCallable)
+server.serve_forever()
+</code></pre>
+</div>
+	  
+  <p id="version">PubTal Version </p>
+  <div id="footer">
+  <p>File: wsgi-server-api.txt</p>
+  <p>Last modified: Wed, 03 Nov 2004 21:02:25 EST</p>
+  <p>Copyright 2004 Colin Stewart</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  </div>
+</body>

@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>SessionServer &amp; SessionServerDaemon API</title>
+	<link href="../style/site.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h1>SessionServer &amp; SessionServerDaemon API</h1>
+  <p id="subject">Server implementation for persisting session data</p>
+  <div><h2>Server</h2>
+<p>A standalone server that maintains session information.</p>
+<h3>Server (socketLocation, dbFileName)</h3>
+<p>Opens a new Unix domain socket at the socketLocation and uses anydbm to persist data in the file dbFileName.</p>
+<h3>runServer()</h3>
+<p>Runs the server until signal 2 is caught.</p>
+<h2>SessionServerDaemon</h2>
+<p>A script that starts a SessionServer as a Daemon process.</p>
+</div>
+	  
+  <p id="version">PubTal Version </p>
+  <div id="footer">
+  <p>File: wsgi-session-server-api.txt</p>
+  <p>Last modified: Sat, 06 Nov 2004 12:00:31 EST</p>
+  <p>Copyright 2004 Colin Stewart</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  </div>
+</body>

@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>SessionClient API</title>
+	<link href="../style/site.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h1>SessionClient API</h1>
+  <p id="subject">API for a session management used in the WSGI Adaptor</p>
+  <div><h2>LocalSessionClient</h2>
+<p>This class provides in-process session management using anydbm.</p>
+<h3>LocalSessionClient (dbFileName, cookieName, sessionLifeSpan = 3600)</h3>
+<p>Creates a session client using the the file dbFileName for session storage.&nbsp; The cookieName contains the name of the cookie that will be sent to the client to identify the session.&nbsp; The sessionLifeSpan is in seconds, and defaults to one hour.</p>
+<h3>getSession (cookies, clientIP)</h3>
+<p>Used by the WSGI Adaptor to retrieve the session for a client in order to pass it to the application through the Request object.</p>
+<h3>saveSession (session)</h3>
+<p>Used by the WSGI Adaptor to save the contents of a session for future retrieval.</p>
+<h3>closeClient()</h3>
+<p>Un-used.&nbsp; Tells the client that no further sessions will be requested or saved.</p>
+<h3>SessionServerClient (socketLocation, cookieName, sessionLifeSpan = 3600)</h3>
+<p>Connects to a SessionServer listening on the Unix domain socket at the socketLocation.&nbsp; All other parameters and methods are the same as for LocalSessionClient.</p>
+</div>
+	  
+  <p id="version">PubTal Version </p>
+  <div id="footer">
+  <p>File: wsgi-session-client-api.txt</p>
+  <p>Last modified: Sat, 06 Nov 2004 12:00:23 EST</p>
+  <p>Copyright 2004 Colin Stewart</p>
+  <p title="PubTal is a template driven web site publisher.">Made with <a href="http://www.owlfish.com/software/PubTal/">PubTal</a> 3.1.2-dev</p>
+  </div>
+</body>

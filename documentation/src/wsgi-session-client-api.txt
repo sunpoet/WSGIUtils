@@ -1,0 +1,20 @@
+title: SessionClient API
+subject: API for a session management used in the WSGI Adaptor
+
+<h2>LocalSessionClient</h2>
+This class provides in-process session management using anydbm.
+
+<h3>LocalSessionClient (dbFileName, cookieName, sessionLifeSpan = 3600)</h3>
+Creates a session client using the the file dbFileName for session storage.  The cookieName contains the name of the cookie that will be sent to the client to identify the session.  The sessionLifeSpan is in seconds, and defaults to one hour.
+
+<h3>getSession (cookies, clientIP)</h3>
+Used by the WSGI Adaptor to retrieve the session for a client in order to pass it to the application through the Request object.
+
+<h3>saveSession (session)</h3>
+Used by the WSGI Adaptor to save the contents of a session for future retrieval.
+
+<h3>closeClient()</h3>
+Un-used.  Tells the client that no further sessions will be requested or saved.
+
+<h3>SessionServerClient (socketLocation, cookieName, sessionLifeSpan = 3600)</h3>
+Connects to a SessionServer listening on the Unix domain socket at the socketLocation.  All other parameters and methods are the same as for LocalSessionClient.
