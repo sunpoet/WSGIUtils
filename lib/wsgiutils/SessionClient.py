@@ -91,6 +91,7 @@ class LocalSessionClient (object):
 		
 	def saveSession (self, session):
 		self.dbLock.acquire()
+		session.lastAccessed = time.time()
 		self.db [session.getSessionID()] = cPickle.dumps (session)
 		self.db.sync()
 		self.dbLock.release()
@@ -198,6 +199,7 @@ class SessionServerClient (object):
 	def saveSession (self, session):
 		msg = xdrlib.Packer()
 		msg.pack_string ("SET")
+		session.lastAccessed = time.time()
 		msg.pack_string (session.getSessionID())
 		msg.pack_string (cPickle.dumps (session))
 		msg = msg.get_buffer()
