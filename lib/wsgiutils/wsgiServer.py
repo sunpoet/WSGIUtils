@@ -31,7 +31,7 @@
 """
 
 import SimpleHTTPServer, SocketServer, BaseHTTPServer, urlparse
-import sys, logging
+import sys, logging, socket, errno
 import traceback, StringIO
 
 SERVER_ERROR = """\
@@ -125,12 +125,23 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 			# We have there environment, now invoke the application
 			result = application (env, self.wsgiStartResponse)
 			try:
-				for data in result:
-					if data:
-						self.wsgiWriteData (data)
-			finally:
-				if hasattr(result, 'close'):
-					result.close()
+				try:
+					for data in result:
+						if data:
+							self.wsgiWriteData (data)
+				finally:
+					if hasattr(result, 'close'):
+						result.close()
+			except socket.error, socketErr:
+				# Catch common network errors and suppress them
+				if (socketErr.args[0] in (errno.ECONNABORTED, errno.EPIPE)):
+					logging.debug ("Network error caught: (%s) %s" % (str (socketErr.args[0]), socketErr.args[1]))
+					# For common network errors we just return
+					return
+			except error.timeout, socketTimeout:
+				# Socket time-out
+				logging.debug ("Socket timeout")
+				return
 		except:
 			errorMsg = StringIO.StringIO()
 			traceback.print_exc(file=errorMsg)

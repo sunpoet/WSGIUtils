@@ -1,5 +1,11 @@
-WSGI Utils (Version 0.5)
+WSGI Utils (Version 0.6)
 ------------------------
+
+Verison 0.6
+-----------
+New features:
+ - Common network errors (e.g. "Software caused connection abort") are now logged and
+   suppressed.
 
 Version 0.5
 -----------
