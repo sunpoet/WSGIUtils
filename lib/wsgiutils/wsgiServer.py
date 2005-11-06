@@ -138,7 +138,7 @@ class WSGIHandler (SimpleHTTPServer.SimpleHTTPRequestHandler):
 					logging.debug ("Network error caught: (%s) %s" % (str (socketErr.args[0]), socketErr.args[1]))
 					# For common network errors we just return
 					return
-			except error.timeout, socketTimeout:
+			except socket.timeout, socketTimeout:
 				# Socket time-out
 				logging.debug ("Socket timeout")
 				return
