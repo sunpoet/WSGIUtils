@@ -1,5 +1,14 @@
-WSGI Utils (Version 0.6)
+sWSGI Utils (Version 0.7)
 ------------------------
+Version 0.7
+-----------
+
+New features:
+ - Added minimal support for SetupTools.
+
+Bug fixes:
+ - Changed "error.timeout" to "socket.timeout".
+ - Changed package name from "WSGI Utils" to "WSGIUtils" for greater compatibility with other tools.
 
 Verison 0.6
 -----------
