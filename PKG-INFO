@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
-Name: WSGI Utils
-Version: 0.6
+Name: WSGIUtils
+Version: 0.7
 Summary: WSGI Utils are a collection of useful libraries for use in a WSGI environnment.
 Home-page: http://www.owlfish.com/software/wsgiutils/index.html
 Author: Colin Stewart
