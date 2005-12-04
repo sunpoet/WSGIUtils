@@ -3,7 +3,11 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.getcwd(),'lib'))
 
-from distutils.core import setup
+try:
+	from setuptools import setup
+except ImportError:
+	from distutils.core import setup
+
 import wsgiutils
 
 try:
@@ -11,7 +15,7 @@ try:
 except:
 	pass
 
-setup(name="WSGI Utils",
+setup(name="WSGIUtils",
 	version= wsgiutils.__version__,
 	description="WSGI Utils are a collection of useful libraries for use in a WSGI environnment.",
 	author="Colin Stewart",
