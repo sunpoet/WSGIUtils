@@ -25,7 +25,7 @@ setup(name="WSGIUtils",
 	packages=[
 		'wsgiutils',
 	],
-	package_data={'': ['LICENSE.txt', 'README.txt']},
+	data_files = [('', ['LICENSE.txt', 'README.txt'])],
 	package_dir = {'': 'lib'},
 	classifiers = (
 		'Development Status :: 5 - Production/Stable',
