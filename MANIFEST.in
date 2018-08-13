@@ -1,1 +1,6 @@
+include Changes.txt
 include LICENSE.txt
+include runtests.py
+graft documentation
+graft examples
+graft tests
