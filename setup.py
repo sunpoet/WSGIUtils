@@ -15,9 +15,13 @@ try:
 except:
 	pass
 
+with open(os.path.join(os.getcwd(), 'README.txt'), 'r') as _readme:
+	long_description = _readme.read()
+
 setup(name="WSGIUtils",
 	version= wsgiutils.__version__,
 	description="WSGI Utils are a collection of useful libraries for use in a WSGI environnment.",
+	long_description=long_description,
 	author="Colin Stewart",
 	author_email="colin@owlfish.com",
 	license="BSD-3-Clause",
