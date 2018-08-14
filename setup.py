@@ -25,7 +25,7 @@ setup(name="WSGIUtils",
 	author="Colin Stewart",
 	author_email="colin@owlfish.com",
 	license="BSD-3-Clause",
-	url="http://www.owlfish.com/software/wsgiutils/index.html",
+	url="https://www.owlfish.com/software/wsgiutils/index.html",
 	packages=[
 		'wsgiutils',
 	],
