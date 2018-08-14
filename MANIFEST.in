@@ -1,0 +1,6 @@
+include Changes.txt
+include LICENSE.txt
+include runtests.py
+recursive-include documentation *.config *.css *.html *.txt
+recursive-include examples *.py
+recursive-include tests *.py

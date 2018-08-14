@@ -1,5 +1,16 @@
-sWSGI Utils (Version 0.7)
-------------------------
+WSGI Utils (Version 0.7.1)
+--------------------------
+
+Version 0.7.1
+-------------
+Changes contributed by David Fraser.
+
+Packaging changes:
+ - Added more packaging info for pypi
+ - Refer to new github repository
+ - Ensure LICENSE.txt is distributed in all formats
+ - Ensure source distribution contains all source files
+
 Version 0.7
 -----------
 
