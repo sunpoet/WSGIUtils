@@ -31,7 +31,7 @@ setup(name="WSGIUtils",
 	],
 	data_files = [('', ['LICENSE.txt', 'README.txt'])],
 	package_dir = {'': 'lib'},
-	classifiers = (
+	classifiers = [
 		'Development Status :: 5 - Production/Stable',
 		'Intended Audience :: Developers',
 		'Natural Language :: English',
@@ -42,5 +42,5 @@ setup(name="WSGIUtils",
 		'Programming Language :: Python :: 2.7',
 		'Programming Language :: Python :: 2 :: Only',
 		'Topic :: Internet :: WWW/HTTP :: WSGI',
-	),
+	],
 )
