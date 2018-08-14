@@ -26,6 +26,10 @@ setup(name="WSGIUtils",
 	author_email="colin@owlfish.com",
 	license="BSD-3-Clause",
 	url="https://www.owlfish.com/software/wsgiutils/index.html",
+	project_urls={
+		"Source Code": "https://github.com/davidfraser/WSGIUtils/",
+		"Documentation": "https://www.owlfish.com/software/wsgiutils/documentation/index.html",
+	},
 	packages=[
 		'wsgiutils',
 	],
