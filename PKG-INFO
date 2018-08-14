@@ -5,6 +5,6 @@ Summary: WSGI Utils are a collection of useful libraries for use in a WSGI envir
 Home-page: http://www.owlfish.com/software/wsgiutils/index.html
 Author: Colin Stewart
 Author-email: colin@owlfish.com
-License: UNKNOWN
+License: BSD-3-Clause
 Description: UNKNOWN
 Platform: UNKNOWN
